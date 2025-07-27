@@ -1,10 +1,19 @@
 import cv2
+import sys
 
 # import the Haar cascade classifier model
 face_classifier = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml") # type: ignore
 
-# access computer's webcam 
-webcam = cv2.VideoCapture(0)    # 0 = default camera
+
+webcam: cv2.VideoCapture
+
+try:
+    # access computer's webcam 
+    webcam = cv2.VideoCapture(0)    # 0 = default camera
+except:
+    # terminate on error
+    print("[ERROR] - Unable to find device camera")
+    sys.exit(1)
 
 
 # helper function: detect faces and add bounding box to video frames
@@ -23,11 +32,8 @@ def detect_faces_video(vid):
         cv2.putText(vid, "Face", (x, int( y - 20 )), cv2.FONT_HERSHEY_PLAIN, 2, (0, 255, 0), cv2.LINE_AA)
         cv2.rectangle(vid, (x, y), (x + w, y + h), (0, 255, 0), 4)
     return faces
-        
 
-# loop to capture video from webcam, run capture through function, then display results to screen
 while True:
-    # read frames from video capture
     result, video_frame = webcam.read()
     # break if frame isn't read successfully
     if result is False:
@@ -35,15 +41,34 @@ while True:
     
     # process frame
     faces = detect_faces_video(video_frame)
-    
-    # show results
-    cv2.imshow("Face detection result", video_frame)
-    
-    # keyboard interrupt
+    if faces:
+        print("Face detected")
+        
     if cv2.waitKey(1) & 0xFF == ord("q"):
         break
-
-# release resources, close windows
+    
 webcam.release()
-cv2.destroyAllWindows()
+        
+
+# loop to capture video from webcam, run capture through function, then display results to screen
+# while True:
+#     # read frames from video capture
+#     result, video_frame = webcam.read()
+#     # break if frame isn't read successfully
+#     if result is False:
+#         break
+    
+#     # process frame
+#     faces = detect_faces_video(video_frame)
+    
+#     # show results
+#     cv2.imshow("Face detection result", video_frame)
+    
+#     # keyboard interrupt
+#     if cv2.waitKey(1) & 0xFF == ord("q"):
+#         break
+
+# # release resources, close windows
+# webcam.release()
+# cv2.destroyAllWindows()
     
